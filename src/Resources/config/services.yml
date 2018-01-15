@@ -1,0 +1,56 @@
+services:
+    Vtech\Bundle\SonataDTOAdminBundle\Model\ModelManager:
+        class: Vtech\Bundle\SonataDTOAdminBundle\Model\ModelManager
+        arguments: ['@property_accessor']
+
+    Vtech\Bundle\SonataDTOAdminBundle\Builder\FormContractor:
+        class: Vtech\Bundle\SonataDTOAdminBundle\Builder\FormContractor
+        arguments: ['@form.factory']
+
+    Vtech\Bundle\SonataDTOAdminBundle\Builder\ShowBuilder:
+        class: Vtech\Bundle\SonataDTOAdminBundle\Builder\ShowBuilder
+
+    Vtech\Bundle\SonataDTOAdminBundle\Builder\ListBuilder:
+        class: Vtech\Bundle\SonataDTOAdminBundle\Builder\ListBuilder
+
+    Vtech\Bundle\SonataDTOAdminBundle\Builder\DatagridBuilder:
+        class: Vtech\Bundle\SonataDTOAdminBundle\Builder\DatagridBuilder
+        arguments: ['@sonata.admin.builder.filter.factory', '@form.factory']
+
+    # ALIAS
+    sonata.admin.manager.dto: '@Vtech\Bundle\SonataDTOAdminBundle\Model\ModelManager'
+    sonata.admin.builder.dto_form: '@Vtech\Bundle\SonataDTOAdminBundle\Builder\FormContractor'
+    sonata.admin.builder.dto_show: '@Vtech\Bundle\SonataDTOAdminBundle\Builder\ShowBuilder'
+    sonata.admin.builder.dto_list: '@Vtech\Bundle\SonataDTOAdminBundle\Builder\ListBuilder'
+    sonata.admin.builder.dto_datagrid: '@Vtech\Bundle\SonataDTOAdminBundle\Builder\DatagridBuilder'
+
+    # FILTER
+    Vtech\Bundle\SonataDTOAdminBundle\Filter\CallbackFilter:
+        class: Vtech\Bundle\SonataDTOAdminBundle\Filter\CallbackFilter
+        public: true
+        tags:
+            - { name: sonata.admin.filter.type, alias: dto_callback }
+
+    Vtech\Bundle\SonataDTOAdminBundle\Filter\StringFilter:
+        class: Vtech\Bundle\SonataDTOAdminBundle\Filter\StringFilter
+        public: true
+        tags:
+            - { name: sonata.admin.filter.type, alias: dto_string }
+
+    Vtech\Bundle\SonataDTOAdminBundle\Filter\BooleanFilter:
+        class: Vtech\Bundle\SonataDTOAdminBundle\Filter\BooleanFilter
+        public: true
+        tags:
+            - { name: sonata.admin.filter.type, alias: dto_boolean }
+
+    Vtech\Bundle\SonataDTOAdminBundle\Filter\DateFilter:
+        class: Vtech\Bundle\SonataDTOAdminBundle\Filter\DateFilter
+        public: true
+        tags:
+            - { name: sonata.admin.filter.type, alias: dto_date }
+
+    Vtech\Bundle\SonataDTOAdminBundle\Filter\DefaultFilter:
+        class: Vtech\Bundle\SonataDTOAdminBundle\Filter\DefaultFilter
+        public: true
+        tags:
+            - { name: sonata.admin.filter.type, alias: dto_default }

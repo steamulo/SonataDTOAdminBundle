@@ -1,0 +1,29 @@
+{
+  "name": "vtech-bundles/sonata-dto-admin-bundle",
+  "license": "proprietary",
+  "type": "symfony-bundle",
+  "description": "Symfony Sonata / Integrate DTO into the SonataAdminBundle",
+  "authors": [
+    {
+      "name": "Aurelien Soulard",
+      "email": "aurelien@vtech.fr"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Vtech\\Bundle\\SonataDTOAdminBundle\\": "src/"
+    }
+  },
+  "repositories": {
+    "vtech": {
+      "type": "composer",
+      "url": "https://composer.vtech.fr"
+    }
+  },
+  "require": {
+    "php": "^5.6 || ^7.0",
+    "sonata-project/admin-bundle": "^3.29",
+    "symfony/framework-bundle": "^2.8 || ^3.2 || ^4.0",
+    "beberlei/assert": "^2.8"
+  }
+}
