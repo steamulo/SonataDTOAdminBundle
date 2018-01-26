@@ -2,6 +2,7 @@
 
 namespace Vtech\Bundle\SonataDTOAdminBundle\Filter;
 
+use Assert\AssertionFailedException;
 use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
 use Sonata\CoreBundle\Form\Type\BooleanType;
 use Sonata\AdminBundle\Form\Type\Filter\DefaultType;
@@ -16,6 +17,7 @@ class BooleanFilter extends AbstractFilter
      * @param string $alias
      * @param string $field
      * @param array $value
+     * @throws AssertionFailedException
      */
     public function filter(ProxyQueryInterface $queryBuilder, $alias, $field, $value)
     {
@@ -29,7 +31,7 @@ class BooleanFilter extends AbstractFilter
 
         $criteriaValue = $value['value'] === BooleanType::TYPE_YES;
 
-        $queryBuilder->addCriteria(new Criteria($field, null, $criteriaValue));
+        $queryBuilder->addCriteria(new Criteria($field, null, $criteriaValue, $alias));
     }
 
     /**

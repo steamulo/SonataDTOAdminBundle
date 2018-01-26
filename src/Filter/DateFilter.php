@@ -2,6 +2,7 @@
 
 namespace Vtech\Bundle\SonataDTOAdminBundle\Filter;
 
+use Assert\AssertionFailedException;
 use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Sonata\AdminBundle\Form\Type\Filter\DateType as SonataDateType;
@@ -15,6 +16,7 @@ class DateFilter extends AbstractFilter
      * @param string $alias
      * @param string $field
      * @param array $value
+     * @throws AssertionFailedException
      */
     public function filter(ProxyQueryInterface $queryBuilder, $alias, $field, $value)
     {
@@ -33,7 +35,7 @@ class DateFilter extends AbstractFilter
 
         $criteriaType = !isset($value['type']) || !is_numeric($value['type']) ? SonataDateType::TYPE_EQUAL : $value['type'];
 
-        $queryBuilder->addCriteria(new Criteria($field, $this->getCriteriaType($criteriaType), $criteriaValue));
+        $queryBuilder->addCriteria(new Criteria($field, $this->getCriteriaType($criteriaType), $criteriaValue, $alias));
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Vtech\Bundle\SonataDTOAdminBundle\Filter;
 
+use Assert\AssertionFailedException;
 use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
 use Sonata\AdminBundle\Form\Type\Filter\ChoiceType;
 use Vtech\Bundle\SonataDTOAdminBundle\Datagrid\ProxyQuery;
@@ -14,6 +15,7 @@ class StringFilter extends AbstractFilter
      * @param string $alias
      * @param string $field
      * @param array $value
+     * @throws AssertionFailedException
      */
     public function filter(ProxyQueryInterface $queryBuilder, $alias, $field, $value)
     {
@@ -29,7 +31,7 @@ class StringFilter extends AbstractFilter
 
         $criteriaType = !isset($value['type']) || !is_numeric($value['type']) ? ChoiceType::TYPE_CONTAINS : $value['type'];
 
-        $queryBuilder->addCriteria(new Criteria($field, $this->getCriteriaType($criteriaType), sprintf($this->getOption('format'), $criteriaValue)));
+        $queryBuilder->addCriteria(new Criteria($field, $this->getCriteriaType($criteriaType), sprintf($this->getOption('format'), $criteriaValue), $alias));
     }
 
     /**

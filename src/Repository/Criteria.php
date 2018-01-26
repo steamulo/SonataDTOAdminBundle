@@ -15,6 +15,7 @@ class Criteria
     const TYPE_LESS_THAN = 7;
     const TYPE_NULL = 8;
     const TYPE_NOT_NULL = 9;
+    const TYPE_IN = 10;
 
     /**
      * @var string
@@ -28,15 +29,20 @@ class Criteria
      * @var mixed
      */
     protected $value;
+    /**
+     * @var string|null
+     */
+    protected $parentAlias;
 
     /**
      * @param string $fieldName
      * @param int $type
      * @param mixed $value
+     * @param string|null $parentAlias
      *
      * @throws \Assert\AssertionFailedException
      */
-    public function __construct($fieldName, $type, $value)
+    public function __construct($fieldName, $type, $value, $parentAlias = null)
     {
         Assertion::string($fieldName);
         Assertion::nullOrInArray($type, [
@@ -50,10 +56,12 @@ class Criteria
             self::TYPE_NULL,
             self::TYPE_NOT_NULL,
         ]);
+        Assertion::nullOrString($parentAlias);
 
         $this->fieldName = $fieldName;
         $this->type = $type;
         $this->value = $value;
+        $this->parentAlias = $parentAlias;
     }
 
     /**
@@ -78,5 +86,13 @@ class Criteria
     public function getValue()
     {
         return $this->value;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getParentAlias()
+    {
+        return $this->parentAlias;
     }
 }

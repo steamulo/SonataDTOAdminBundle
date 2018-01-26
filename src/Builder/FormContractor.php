@@ -7,6 +7,13 @@ use Sonata\AdminBundle\Admin\FieldDescriptionInterface;
 use Sonata\AdminBundle\Builder\FormContractorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Sonata\AdminBundle\Form\Type\ModelType;
+use Sonata\AdminBundle\Form\Type\ModelTypeList;
+use Sonata\AdminBundle\Form\Type\ModelListType;
+use Sonata\AdminBundle\Form\Type\ModelHiddenType;
+use Sonata\AdminBundle\Form\Type\ModelAutocompleteType;
+use Sonata\AdminBundle\Form\Type\AdminType;
+use Sonata\AdminBundle\Form\Type\CollectionType;
 
 class FormContractor implements FormContractorInterface
 {
@@ -48,6 +55,10 @@ class FormContractor implements FormContractorInterface
         $fieldDescription->setAdmin($admin);
         $fieldDescription->setOption('edit', $fieldDescription->getOption('edit', 'standard'));
         $fieldDescription->setFieldMapping($fieldMapping);
+
+        if ($fieldDescription->getOption('admin_code')) {
+            $admin->attachAdminClass($fieldDescription);
+        }
     }
 
     /**
@@ -67,13 +78,13 @@ class FormContractor implements FormContractorInterface
         $options['sonata_field_description'] = $fieldDescription;
 
         if (in_array($type, [
-            'Sonata\AdminBundle\Form\Type\ModelType',
-            'Sonata\AdminBundle\Form\Type\ModelTypeList',
-            'Sonata\AdminBundle\Form\Type\ModelListType',
-            'Sonata\AdminBundle\Form\Type\ModelHiddenType',
-            'Sonata\AdminBundle\Form\Type\ModelAutocompleteType',
-            'Sonata\AdminBundle\Form\Type\AdminType',
-            'Sonata\CoreBundle\Form\Type\CollectionType',
+            ModelType::class,
+            ModelTypeList::class,
+            ModelListType::class,
+            ModelHiddenType::class,
+            ModelAutocompleteType::class,
+            AdminType::class,
+            CollectionType::class,
         ])) {
             throw new \RuntimeException(sprintf('%s is not implemented', $type));
         }
