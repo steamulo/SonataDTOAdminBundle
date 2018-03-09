@@ -92,7 +92,7 @@ class ListBuilder implements ListBuilderInterface
     public function buildField($type, FieldDescriptionInterface $fieldDescription, AdminInterface $admin)
     {
         if ($type === null) {
-            throw new \InvalidArgumentException('Type is not defined');
+            $type = 'text';
         }
 
         $fieldDescription->setType($type);

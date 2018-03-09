@@ -45,6 +45,7 @@ class FieldDescription extends BaseFieldDescription
      */
     public function setParentAssociationMappings(array $parentAssociationMappings)
     {
+        $this->setOption('parent_association_mappings', $parentAssociationMappings);
         $this->parentAssociationMappings = $parentAssociationMappings;
     }
 

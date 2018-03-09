@@ -15,7 +15,7 @@ services:
 
     Vtech\Bundle\SonataDTOAdminBundle\Builder\DatagridBuilder:
         class: Vtech\Bundle\SonataDTOAdminBundle\Builder\DatagridBuilder
-        arguments: ['@sonata.admin.builder.filter.factory', '@form.factory']
+        arguments: ['@sonata.admin.builder.filter.factory', '@form.factory', '@security.token_storage']
 
     # ALIAS
     sonata.admin.manager.dto: '@Vtech\Bundle\SonataDTOAdminBundle\Model\ModelManager'
@@ -25,6 +25,12 @@ services:
     sonata.admin.builder.dto_datagrid: '@Vtech\Bundle\SonataDTOAdminBundle\Builder\DatagridBuilder'
 
     # FILTER
+    Vtech\Bundle\SonataDTOAdminBundle\Filter\DoctrineEntityFilter:
+        class: Vtech\Bundle\SonataDTOAdminBundle\Filter\DoctrineEntityFilter
+        public: true
+        tags:
+            - { name: sonata.admin.filter.type, alias: dto_doctrine_entity }
+
     Vtech\Bundle\SonataDTOAdminBundle\Filter\CallbackFilter:
         class: Vtech\Bundle\SonataDTOAdminBundle\Filter\CallbackFilter
         public: true
@@ -54,3 +60,10 @@ services:
         public: true
         tags:
             - { name: sonata.admin.filter.type, alias: dto_default }
+
+    # Constraints
+    Vtech\Bundle\SonataDTOAdminBundle\Validator\Constraints\DtoUniqueEntityValidator:
+        class: Vtech\Bundle\SonataDTOAdminBundle\Validator\Constraints\DtoUniqueEntityValidator
+        arguments: ['@doctrine']
+        tags:
+            - { name: validator.constraint_validator }

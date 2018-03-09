@@ -2,17 +2,26 @@
 
 namespace Vtech\Bundle\SonataDTOAdminBundle\Filter;
 
-use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Doctrine\Common\Collections\Collection;
 use Sonata\AdminBundle\Form\Type\Filter\DefaultType;
+use Sonata\CoreBundle\Form\Type\EqualType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
+use Assert\AssertionFailedException;
 use Vtech\Bundle\SonataDTOAdminBundle\Datagrid\ProxyQuery;
 use Vtech\Bundle\SonataDTOAdminBundle\Repository\Criteria;
 
-class DefaultFilter extends AbstractFilter
+/**
+ * @author Aurélien Soulard <aurelien@vtech.fr>
+ */
+class DoctrineEntityFilter extends AbstractFilter
 {
     /**
-     * {@inheritdoc}
+     * @param ProxyQueryInterface $queryBuilder
+     * @param string $alias
+     * @param string $field
+     * @param array $value
+     * @throws AssertionFailedException
      */
     public function filter(ProxyQueryInterface $queryBuilder, $alias, $field, $value)
     {
@@ -20,9 +29,19 @@ class DefaultFilter extends AbstractFilter
             throw new \RuntimeException(sprintf('query must be instance of %s', ProxyQuery::class));
         }
 
+        if (!isset($value['value']) || !$value['value'] || empty($value['value'])) {
+            return;
+        }
+
         $criteriaValue = $value['value'];
 
-        $queryBuilder->addCriteria(new Criteria($field, Criteria::TYPE_EQUAL, $criteriaValue, $alias));
+        if ($criteriaValue instanceof Collection) {
+            $criteriaValue = $criteriaValue->toArray();
+        }
+
+        $criteriaType = is_array($criteriaValue) ? Criteria::TYPE_IN : Criteria::TYPE_EQUAL;
+
+        $queryBuilder->addCriteria(new Criteria($field, $criteriaType, $criteriaValue, $alias));
     }
 
     /**
@@ -31,8 +50,11 @@ class DefaultFilter extends AbstractFilter
     public function getDefaultOptions()
     {
         return [
-            'field_type' => TextType::class,
-            'operator_type' => HiddenType::class,
+            'mapping_type' => false,
+            'field_name' => false,
+            'field_type' => EntityType::class,
+            'field_options' => [],
+            'operator_type' => EqualType::class,
             'operator_options' => [],
         ];
     }

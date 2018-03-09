@@ -9,6 +9,28 @@ use Sonata\AdminBundle\Builder\ShowBuilderInterface;
 
 class ShowBuilder implements ShowBuilderInterface
 {
+    private $templates = [
+        'array' => 'SonataAdminBundle:CRUD:show_array.html.twig',
+        'boolean' => 'SonataAdminBundle:CRUD:show_boolean.html.twig',
+        'date' => 'SonataAdminBundle:CRUD:show_date.html.twig',
+        'time' => 'SonataAdminBundle:CRUD:show_time.html.twig',
+        'datetime' => 'SonataAdminBundle:CRUD:show_datetime.html.twig',
+        'text' => 'SonataAdminBundle:CRUD:show_string.html.twig',
+        'textarea' => 'SonataAdminBundle:CRUD:show_string.html.twig',
+        'email' => 'SonataAdminBundle:CRUD:show_email.html.twig',
+        'trans' => 'SonataAdminBundle:CRUD:show_trans.html.twig',
+        'string' => 'SonataAdminBundle:CRUD:show_string.html.twig',
+        'smallint' => 'SonataAdminBundle:CRUD:show_string.html.twig',
+        'bigint' => 'SonataAdminBundle:CRUD:show_string.html.twig',
+        'integer' => 'SonataAdminBundle:CRUD:show_string.html.twig',
+        'decimal' => 'SonataAdminBundle:CRUD:show_string.html.twig',
+        'currency' => 'SonataAdminBundle:CRUD:show_currency.html.twig',
+        'percent' => 'SonataAdminBundle:CRUD:show_percent.html.twig',
+        'choice' => 'SonataAdminBundle:CRUD:show_choice.html.twig',
+        'url' => 'SonataAdminBundle:CRUD:show_url.html.twig',
+        'html' => 'SonataAdminBundle:CRUD:show_html.html.twig',
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -37,7 +59,11 @@ class ShowBuilder implements ShowBuilderInterface
         $fieldDescription->setFieldMapping($fieldMapping);
 
         if (!$fieldDescription->getTemplate()) {
-            throw new \RuntimeException('Unable to find template');
+            $fieldDescription->setTemplate($this->getTemplate($fieldDescription->getType()));
+
+            if (!$fieldDescription->getTemplate()) {
+                throw new \RuntimeException(sprintf('Unable to find template for type: %s', $fieldDescription->getType()));
+            }
         }
     }
 
@@ -55,7 +81,7 @@ class ShowBuilder implements ShowBuilderInterface
     public function addField(FieldDescriptionCollection $list, $type, FieldDescriptionInterface $fieldDescription, AdminInterface $admin)
     {
         if ($type === null) {
-            throw new \InvalidArgumentException('Type is not defined');
+            $type = 'text';
         }
 
         $fieldDescription->setType($type);
@@ -64,5 +90,19 @@ class ShowBuilder implements ShowBuilderInterface
         $admin->addShowFieldDescription($fieldDescription->getName(), $fieldDescription);
 
         $list->add($fieldDescription);
+    }
+
+    /**
+     * @param string $type
+     *
+     * @return string
+     */
+    private function getTemplate($type)
+    {
+        if (!isset($this->templates[$type])) {
+            return null;
+        }
+
+        return $this->templates[$type];
     }
 }

@@ -10,6 +10,9 @@ use Sonata\AdminBundle\Datagrid\DatagridInterface;
 use Sonata\AdminBundle\Filter\FilterFactoryInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Vtech\Bundle\SonataDTOAdminBundle\Admin\AdminSecurityInterface;
 use Vtech\Bundle\SonataDTOAdminBundle\Datagrid\Pager;
 
 class DatagridBuilder implements DatagridBuilderInterface
@@ -25,14 +28,21 @@ class DatagridBuilder implements DatagridBuilderInterface
     protected $formFactory;
 
     /**
+     * @var TokenStorageInterface
+     */
+    protected $tokenStorage;
+
+    /**
      * DatagridBuilder constructor.
      * @param FilterFactoryInterface $filterFactory
      * @param FormFactoryInterface $formFactory
+     * @param TokenStorageInterface $tokenStorage
      */
-    public function __construct(FilterFactoryInterface $filterFactory, FormFactoryInterface $formFactory)
+    public function __construct(FilterFactoryInterface $filterFactory, FormFactoryInterface $formFactory, TokenStorageInterface $tokenStorage)
     {
         $this->filterFactory = $filterFactory;
         $this->formFactory = $formFactory;
+        $this->tokenStorage = $tokenStorage;
     }
 
     /**
@@ -53,6 +63,10 @@ class DatagridBuilder implements DatagridBuilderInterface
         $fieldDescription->setOption('code', $fieldDescription->getOption('code', $fieldDescription->getName()));
         $fieldDescription->setOption('name', $fieldDescription->getOption('name', $fieldDescription->getName()));
         $fieldDescription->setFieldMapping($fieldMapping);
+
+        if ($fieldDescription->getOption('admin_code')) {
+            $admin->attachAdminClass($fieldDescription);
+        }
     }
 
     /**
@@ -70,6 +84,13 @@ class DatagridBuilder implements DatagridBuilderInterface
         $admin->addFilterFieldDescription($fieldDescription->getName(), $fieldDescription);
 
         $fieldDescription->mergeOption('field_options', ['required' => false]);
+
+        if (null !== $associationAdmin = $fieldDescription->getAssociationAdmin()) {
+            $fieldDescription->mergeOption('field_options', [
+                'class' => $associationAdmin->getClass(),
+                'model_manager' => $associationAdmin->getModelManager(),
+            ]);
+        }
 
         $filter = $this->filterFactory->create($fieldDescription->getName(), $type, $fieldDescription->getOptions());
 
@@ -95,6 +116,28 @@ class DatagridBuilder implements DatagridBuilderInterface
 
         $formBuilder = $this->formFactory->createNamedBuilder('filter', FormType::class, [], $defaultOptions);
 
-        return new Datagrid($admin->createQuery(), $admin->getList(), $pager, $formBuilder, $values);
+        $query = $admin->createQuery();
+        if ($admin instanceof AdminSecurityInterface) {
+            $admin->filterQueryForUser($this->getLoggedUser(), $query);
+        }
+
+        return new Datagrid($query, $admin->getList(), $pager, $formBuilder, $values);
+    }
+
+    /**
+     * @return UserInterface
+     */
+    private function getLoggedUser()
+    {
+        $token = $this->tokenStorage->getToken();
+        if (null === $token) {
+            return null;
+        }
+
+        if (null !== $user = $token->getUser()) {
+            return $user;
+        }
+
+        return null;
     }
 }
