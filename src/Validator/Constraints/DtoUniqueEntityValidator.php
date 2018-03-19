@@ -123,7 +123,7 @@ class DtoUniqueEntityValidator extends ConstraintValidator
 
         if (0 === count($result)) {
             return;
-        } elseif (1 === count($result)) {
+        } elseif (1 === count($result) && !$constraint->strict) {
             $entity = $result instanceof \Iterator ? $result->current() : current($result);
             if ($entity === $this->getEntityByIds($dto, $repository, $constraint->ids)) {
                 return;

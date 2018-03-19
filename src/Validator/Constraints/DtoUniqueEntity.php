@@ -39,6 +39,10 @@ class DtoUniqueEntity extends Constraint
      * @var bool
      */
     public $ignoreNull = true;
+    /**
+     * @var bool
+     */
+    public $strict = false;
 
     /**
      * {@inheritdoc}
@@ -67,6 +71,9 @@ class DtoUniqueEntity extends Constraint
         }
         if (!is_bool($this->ignoreNull)) {
             throw new UnexpectedTypeException($this->ignoreNull, 'bool');
+        }
+        if (!is_bool($this->strict)) {
+            throw new UnexpectedTypeException($this->strict, 'bool');
         }
     }
 
