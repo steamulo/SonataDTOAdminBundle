@@ -2,6 +2,8 @@
 
 namespace Vtech\Bundle\SonataDTOAdminBundle\Model;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Sonata\AdminBundle\Admin\FieldDescriptionInterface;
 use Sonata\AdminBundle\Datagrid\DatagridInterface;
 use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
@@ -320,7 +322,7 @@ class ModelManager implements ModelManagerInterface
      */
     public function getModelCollectionInstance($class)
     {
-        return [];
+        return new ArrayCollection();
     }
 
     /**
@@ -328,8 +330,15 @@ class ModelManager implements ModelManagerInterface
      */
     public function collectionRemoveElement(&$collection, &$element)
     {
-        // TODO: Implement collectionRemoveElement() method.
-        throw new \ReflectionException('Method not implemented');
+        if (!$collection instanceof Collection) {
+            throw new \InvalidArgumentException(sprintf(
+                'Expected collection of type "%s", "%s" given',
+                Collection::class,
+                is_object($collection) ? get_class($collection) : gettype($collection)
+            ));
+        }
+
+        return $collection->removeElement($element);
     }
 
     /**
@@ -337,8 +346,15 @@ class ModelManager implements ModelManagerInterface
      */
     public function collectionAddElement(&$collection, &$element)
     {
-        // TODO: Implement collectionAddElement() method.
-        throw new \ReflectionException('Method not implemented');
+        if (!$collection instanceof Collection) {
+            throw new \InvalidArgumentException(sprintf(
+                'Expected collection of type "%s", "%s" given',
+                Collection::class,
+                is_object($collection) ? get_class($collection) : gettype($collection)
+            ));
+        }
+
+        return $collection->add($element);
     }
 
     /**
@@ -346,8 +362,15 @@ class ModelManager implements ModelManagerInterface
      */
     public function collectionHasElement(&$collection, &$element)
     {
-        // TODO: Implement collectionHasElement() method.
-        throw new \ReflectionException('Method not implemented');
+        if (!$collection instanceof Collection) {
+            throw new \InvalidArgumentException(sprintf(
+                'Expected collection of type "%s", "%s" given',
+                Collection::class,
+                is_object($collection) ? get_class($collection) : gettype($collection)
+            ));
+        }
+
+        return $collection->contains($element);
     }
 
     /**
@@ -355,8 +378,15 @@ class ModelManager implements ModelManagerInterface
      */
     public function collectionClear(&$collection)
     {
-        // TODO: Implement collectionClear() method.
-        throw new \ReflectionException('Method not implemented');
+        if (!$collection instanceof Collection) {
+            throw new \InvalidArgumentException(sprintf(
+                'Expected collection of type "%s", "%s" given',
+                Collection::class,
+                is_object($collection) ? get_class($collection) : gettype($collection)
+            ));
+        }
+
+        return $collection->clear();
     }
 
     /**
