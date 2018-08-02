@@ -41,7 +41,13 @@ class Pager extends BasePager
      */
     public function getResults()
     {
-        return $this->getQuery()->execute([]);
+        if ($this->results) {
+            return $this->results;
+        }
+
+        $this->results = $this->getQuery()->execute([]);
+
+        return $this->results;
     }
 
     /**

@@ -2,12 +2,12 @@
 
 namespace Vtech\Bundle\SonataDTOAdminBundle\Filter;
 
+use Doctrine\Common\Collections\Criteria;
 use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Sonata\AdminBundle\Form\Type\Filter\DefaultType;
 use Vtech\Bundle\SonataDTOAdminBundle\Datagrid\ProxyQuery;
-use Vtech\Bundle\SonataDTOAdminBundle\Repository\Criteria;
 
 class DefaultFilter extends AbstractFilter
 {
@@ -21,8 +21,11 @@ class DefaultFilter extends AbstractFilter
         }
 
         $criteriaValue = $value['value'];
+        if (!empty($alias)) {
+            $field = sprintf('%s.%s', $alias, $field);
+        }
 
-        $queryBuilder->addCriteria(new Criteria($field, Criteria::TYPE_EQUAL, $criteriaValue, $alias));
+        $queryBuilder->addCriteria(new Criteria(Criteria::expr()->eq($field, $criteriaValue)));
     }
 
     /**

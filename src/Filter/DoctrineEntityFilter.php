@@ -3,13 +3,13 @@
 namespace Vtech\Bundle\SonataDTOAdminBundle\Filter;
 
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Expr\Comparison;
 use Sonata\AdminBundle\Form\Type\Filter\DefaultType;
 use Sonata\CoreBundle\Form\Type\EqualType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
-use Assert\AssertionFailedException;
 use Vtech\Bundle\SonataDTOAdminBundle\Datagrid\ProxyQuery;
-use Vtech\Bundle\SonataDTOAdminBundle\Repository\Criteria;
 
 /**
  * @author Aurélien Soulard <aurelien@vtech.fr>
@@ -21,7 +21,6 @@ class DoctrineEntityFilter extends AbstractFilter
      * @param string $alias
      * @param string $field
      * @param array $value
-     * @throws AssertionFailedException
      */
     public function filter(ProxyQueryInterface $queryBuilder, $alias, $field, $value)
     {
@@ -34,14 +33,16 @@ class DoctrineEntityFilter extends AbstractFilter
         }
 
         $criteriaValue = $value['value'];
-
         if ($criteriaValue instanceof Collection) {
             $criteriaValue = $criteriaValue->toArray();
         }
 
-        $criteriaType = is_array($criteriaValue) ? Criteria::TYPE_IN : Criteria::TYPE_EQUAL;
+        $comparisonOperator = is_array($criteriaValue) ? Comparison::IN : Comparison::EQ;
+        if (!empty($alias)) {
+            $field = sprintf('%s.%s', $alias, $field);
+        }
 
-        $queryBuilder->addCriteria(new Criteria($field, $criteriaType, $criteriaValue, $alias));
+        $queryBuilder->addCriteria(new Criteria(new Comparison($field, $comparisonOperator, $criteriaValue)));
     }
 
     /**

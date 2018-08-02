@@ -4,6 +4,8 @@ namespace Vtech\Bundle\SonataDTOAdminBundle\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Expr\Expression;
 use Sonata\AdminBundle\Admin\FieldDescriptionInterface;
 use Sonata\AdminBundle\Datagrid\DatagridInterface;
 use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
@@ -12,6 +14,7 @@ use Sonata\AdminBundle\Model\ModelManagerInterface;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Vtech\Bundle\SonataDTOAdminBundle\Admin\FieldDescription;
 use Vtech\Bundle\SonataDTOAdminBundle\Admin\IdentifierDenormalizerInterface;
+use Vtech\Bundle\SonataDTOAdminBundle\Admin\IdentifierDescriptorInterface;
 use Vtech\Bundle\SonataDTOAdminBundle\Admin\IdentifierNormalizerInterface;
 use Vtech\Bundle\SonataDTOAdminBundle\Datagrid\ProxyQuery;
 use Vtech\Bundle\SonataDTOAdminBundle\Datagrid\ProxyQuerySourceIterator;
@@ -24,17 +27,21 @@ class ModelManager implements ModelManagerInterface
      */
     private $propertyAccessor;
     /**
-     * @var array
+     * @var AdminRepositoryInterface[]
      */
     private $repositories = [];
     /**
-     * @var array
+     * @var IdentifierNormalizerInterface[]
      */
     private $identifierNormalizer = [];
     /**
-     * @var array
+     * @var IdentifierDenormalizerInterface[]
      */
     private $identifierDenormalizer = [];
+    /**
+     * @var IdentifierDescriptorInterface[]
+     */
+    private $identifierDescriptor = [];
 
     /**
      * @param PropertyAccessorInterface $propertyAccessor
@@ -69,6 +76,15 @@ class ModelManager implements ModelManagerInterface
     public function addIdentifierDenormalizer($class, IdentifierDenormalizerInterface $denormalizer)
     {
         $this->identifierDenormalizer[$class] = $denormalizer;
+    }
+
+    /**
+     * @param string $class
+     * @param IdentifierDescriptorInterface $descriptor
+     */
+    public function addIdentifierDescriptor($class, IdentifierDescriptorInterface $descriptor)
+    {
+        $this->identifierDescriptor[$class] = $descriptor;
     }
 
     /**
@@ -163,7 +179,7 @@ class ModelManager implements ModelManagerInterface
      */
     public function findBy($class, array $criteria = [])
     {
-        return $this->getClassRepository($class)->findBy($criteria);
+        return $this->getClassRepository($class)->findBy($this->createCriteriaFromExpressions($criteria));
     }
 
     /**
@@ -171,6 +187,8 @@ class ModelManager implements ModelManagerInterface
      */
     public function findOneBy($class, array $criteria = [])
     {
+        $criteria = $this->createCriteriaFromExpressions($criteria);
+        $criteria->setMaxResults(1);
         $objects = $this->getClassRepository($class)->findBy($criteria);
         if (empty($objects)) {
             return null;
@@ -257,6 +275,10 @@ class ModelManager implements ModelManagerInterface
      */
     public function getIdentifierFieldNames($class)
     {
+        if (null !== $descriptor = $this->getClassIdentifierDescriptor($class)) {
+            $descriptor->getIdentifierFieldNames();
+        }
+
         $reflection = new \ReflectionClass($class);
         if ($reflection->hasMethod('getId')
             && $reflection->getMethod('getId')->isPublic()) {
@@ -398,7 +420,8 @@ class ModelManager implements ModelManagerInterface
         /** @var FieldDescriptionInterface $sortByField */
         $sortByField = $values['_sort_by'];
 
-        if ($fieldDescription->getName() == $sortByField->getName() || $sortByField->getName() === $fieldDescription->getOption('sortable')) {
+        if ($fieldDescription->getName() == $sortByField->getName()
+            || $sortByField->getName() === $fieldDescription->getOption('sortable')) {
             if ($values['_sort_order'] == 'ASC') {
                 $values['_sort_order'] = 'DESC';
             } else {
@@ -408,7 +431,8 @@ class ModelManager implements ModelManagerInterface
             $values['_sort_order'] = 'ASC';
         }
 
-        $values['_sort_by'] = is_string($fieldDescription->getOption('sortable')) ? $fieldDescription->getOption('sortable') : $fieldDescription->getName();
+        $values['_sort_by'] = is_string($fieldDescription->getOption('sortable')) ?
+            $fieldDescription->getOption('sortable') : $fieldDescription->getName();
 
         return ['filter' => $values];
     }
@@ -462,8 +486,12 @@ class ModelManager implements ModelManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function getDataSourceIterator(DatagridInterface $datagrid, array $fields, $firstResult = null, $maxResult = null)
-    {
+    public function getDataSourceIterator(
+        DatagridInterface $datagrid,
+        array $fields,
+        $firstResult = null,
+        $maxResult = null
+    ) {
         $datagrid->buildPager();
         $query = $datagrid->getQuery();
         if (!$query instanceof ProxyQuery) {
@@ -562,6 +590,19 @@ class ModelManager implements ModelManagerInterface
 
     /**
      * @param string $class
+     * @return IdentifierDescriptorInterface
+     */
+    protected function getClassIdentifierDescriptor($class)
+    {
+        if (!isset($this->identifierDescriptor[$class])) {
+            return null;
+        }
+
+        return $this->identifierDescriptor[$class];
+    }
+
+    /**
+     * @param string $class
      * @return IdentifierDenormalizerInterface
      */
     protected function getClassIdentifierDenormalizer($class)
@@ -571,5 +612,25 @@ class ModelManager implements ModelManagerInterface
         }
 
         return $this->identifierDenormalizer[$class];
+    }
+
+    /**
+     * @param array $expressions
+     * @return Criteria
+     */
+    private function createCriteriaFromExpressions(array $expressions)
+    {
+        $criteria = Criteria::create();
+        foreach ($expressions as $expression) {
+            if ($expression instanceof Criteria) {
+                return $expression;
+            }
+
+            if ($expression instanceof Expression) {
+                $criteria->andWhere($expression);
+            }
+        }
+
+        return $criteria;
     }
 }

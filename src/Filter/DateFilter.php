@@ -2,12 +2,12 @@
 
 namespace Vtech\Bundle\SonataDTOAdminBundle\Filter;
 
-use Assert\AssertionFailedException;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Expr\Comparison;
 use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Sonata\AdminBundle\Form\Type\Filter\DateType as SonataDateType;
 use Vtech\Bundle\SonataDTOAdminBundle\Datagrid\ProxyQuery;
-use Vtech\Bundle\SonataDTOAdminBundle\Repository\Criteria;
 
 class DateFilter extends AbstractFilter
 {
@@ -16,7 +16,6 @@ class DateFilter extends AbstractFilter
      * @param string $alias
      * @param string $field
      * @param array $value
-     * @throws AssertionFailedException
      */
     public function filter(ProxyQueryInterface $queryBuilder, $alias, $field, $value)
     {
@@ -34,8 +33,22 @@ class DateFilter extends AbstractFilter
         }
 
         $criteriaType = !isset($value['type']) || !is_numeric($value['type']) ? SonataDateType::TYPE_EQUAL : $value['type'];
+        switch ($criteriaType) {
+            case SonataDateType::TYPE_NULL:
+            case SonataDateType::TYPE_NOT_NULL:
+                $criteriaValue = null;
+                break;
+            default:
+                break;
+        }
 
-        $queryBuilder->addCriteria(new Criteria($field, $this->getCriteriaType($criteriaType), $criteriaValue, $alias));
+        if (!empty($alias)) {
+            $field = sprintf('%s.%s', $alias, $field);
+        }
+
+        $queryBuilder->addCriteria(new Criteria(
+            new Comparison($field, $this->getComparisonOperator($criteriaType), $criteriaValue)
+        ));
     }
 
     /**
@@ -63,20 +76,20 @@ class DateFilter extends AbstractFilter
 
     /**
      * @param int $choiceType
-     * @return int
+     * @return string
      */
-    protected function getCriteriaType($choiceType)
+    protected function getComparisonOperator($choiceType)
     {
         $choices = [
-            SonataDateType::TYPE_EQUAL => Criteria::TYPE_EQUAL,
-            SonataDateType::TYPE_GREATER_EQUAL => Criteria::TYPE_GREATER_EQUAL,
-            SonataDateType::TYPE_GREATER_THAN => Criteria::TYPE_GREATER_THAN,
-            SonataDateType::TYPE_LESS_EQUAL => Criteria::TYPE_LESS_EQUAL,
-            SonataDateType::TYPE_LESS_THAN => Criteria::TYPE_LESS_THAN,
-            SonataDateType::TYPE_NULL => Criteria::TYPE_NULL,
-            SonataDateType::TYPE_NOT_NULL => Criteria::TYPE_NOT_NULL,
+            SonataDateType::TYPE_EQUAL => Comparison::EQ,
+            SonataDateType::TYPE_GREATER_EQUAL => Comparison::GTE,
+            SonataDateType::TYPE_GREATER_THAN => Comparison::GT,
+            SonataDateType::TYPE_LESS_EQUAL => Comparison::LTE,
+            SonataDateType::TYPE_LESS_THAN => Comparison::LT,
+            SonataDateType::TYPE_NULL => Comparison::EQ,
+            SonataDateType::TYPE_NOT_NULL => Comparison::NEQ,
         ];
 
-        return isset($choices[$choiceType]) ? $choices[$choiceType] : Criteria::TYPE_EQUAL;
+        return isset($choices[$choiceType]) ? $choices[$choiceType] : Comparison::EQ;
     }
 }

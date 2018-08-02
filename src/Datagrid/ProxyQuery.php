@@ -2,9 +2,9 @@
 
 namespace Vtech\Bundle\SonataDTOAdminBundle\Datagrid;
 
+use Doctrine\Common\Collections\Criteria;
 use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
 use Vtech\Bundle\SonataDTOAdminBundle\Repository\AdminRepositoryInterface;
-use Vtech\Bundle\SonataDTOAdminBundle\Repository\Criteria;
 
 class ProxyQuery implements ProxyQueryInterface
 {
@@ -17,17 +17,13 @@ class ProxyQuery implements ProxyQueryInterface
      */
     private $identifiers = [];
     /**
-     * @var array
+     * @var Criteria
      */
-    private $criteriaList = [];
+    private $criteria;
     /**
      * @var int
      */
-    private $firstResult;
-    /**
-     * @var int
-     */
-    private $maxResults;
+    private $uniqueParameterId;
     /**
      * @var string
      */
@@ -36,10 +32,6 @@ class ProxyQuery implements ProxyQueryInterface
      * @var string
      */
     private $sortOrder;
-    /**
-     * @var int
-     */
-    private $uniqueParameterId;
 
     /**
      * ProxyQuery constructor.
@@ -48,8 +40,7 @@ class ProxyQuery implements ProxyQueryInterface
     public function __construct(AdminRepositoryInterface $repository)
     {
         $this->repository = $repository;
-        $this->firstResult = 0;
-        $this->maxResults = 0;
+        $this->criteria = Criteria::create();
         $this->uniqueParameterId = 0;
     }
 
@@ -74,15 +65,17 @@ class ProxyQuery implements ProxyQueryInterface
      */
     public function addCriteria(Criteria $criteria)
     {
-        $this->criteriaList[] = $criteria;
+        if ($whereExpression = $criteria->getWhereExpression()) {
+            $this->criteria->andWhere($whereExpression);
+        }
     }
 
     /**
-     * @return array
+     * @return Criteria
      */
-    public function getCriteriaList()
+    public function getCriteria()
     {
-        return $this->criteriaList;
+        return $this->criteria;
     }
 
     /**
@@ -90,7 +83,7 @@ class ProxyQuery implements ProxyQueryInterface
      */
     public function getNbResults()
     {
-        return $this->repository->count($this->getCriteriaList());
+        return $this->repository->count($this->getCriteria());
     }
 
     /**
@@ -106,14 +99,7 @@ class ProxyQuery implements ProxyQueryInterface
      */
     public function execute(array $params = [], $hydrationMode = null)
     {
-        return $this->repository->findBy(
-            $this->getCriteriaList(),
-            [
-                $this->getSortBy() => $this->getSortOrder()
-            ],
-            $this->getFirstResult(),
-            $this->getMaxResults()
-        );
+        return $this->repository->findBy($this->getCriteria());
     }
 
     /**
@@ -128,6 +114,9 @@ class ProxyQuery implements ProxyQueryInterface
         }
 
         $this->sortBy = $fieldMapping['fieldName'];
+        if (!empty($this->sortBy) && !empty($this->sortOrder)) {
+            $this->criteria->orderBy([$this->sortBy => $this->sortOrder]);
+        }
     }
 
     /**
@@ -144,6 +133,9 @@ class ProxyQuery implements ProxyQueryInterface
     public function setSortOrder($sortOrder)
     {
         $this->sortOrder = $sortOrder;
+        if (!empty($this->sortBy) && !empty($this->sortOrder)) {
+            $this->criteria->orderBy([$this->sortBy => $this->sortOrder]);
+        }
     }
 
     /**
@@ -167,7 +159,7 @@ class ProxyQuery implements ProxyQueryInterface
      */
     public function setFirstResult($firstResult)
     {
-        $this->firstResult = $firstResult;
+        $this->criteria->setFirstResult($firstResult);
     }
 
     /**
@@ -175,7 +167,7 @@ class ProxyQuery implements ProxyQueryInterface
      */
     public function getFirstResult()
     {
-        return $this->firstResult;
+        return $this->criteria->getFirstResult();
     }
 
     /**
@@ -183,7 +175,7 @@ class ProxyQuery implements ProxyQueryInterface
      */
     public function setMaxResults($maxResults)
     {
-        $this->maxResults = $maxResults;
+        $this->criteria->setMaxResults($maxResults);
     }
 
     /**
@@ -191,7 +183,7 @@ class ProxyQuery implements ProxyQueryInterface
      */
     public function getMaxResults()
     {
-        return $this->maxResults;
+        return $this->criteria->getMaxResults();
     }
 
     /**

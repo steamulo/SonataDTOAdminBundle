@@ -2,11 +2,11 @@
 
 namespace Vtech\Bundle\SonataDTOAdminBundle\Filter;
 
-use Assert\AssertionFailedException;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Expr\Comparison;
 use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
-use Sonata\AdminBundle\Form\Type\Filter\ChoiceType;
 use Vtech\Bundle\SonataDTOAdminBundle\Datagrid\ProxyQuery;
-use Vtech\Bundle\SonataDTOAdminBundle\Repository\Criteria;
+use Vtech\Bundle\SonataDTOAdminBundle\Form\Type\Filter\ChoiceType;
 
 class StringFilter extends AbstractFilter
 {
@@ -15,7 +15,6 @@ class StringFilter extends AbstractFilter
      * @param string $alias
      * @param string $field
      * @param array $value
-     * @throws AssertionFailedException
      */
     public function filter(ProxyQueryInterface $queryBuilder, $alias, $field, $value)
     {
@@ -30,8 +29,17 @@ class StringFilter extends AbstractFilter
         }
 
         $criteriaType = !isset($value['type']) || !is_numeric($value['type']) ? ChoiceType::TYPE_CONTAINS : $value['type'];
+        if (!empty($alias)) {
+            $field = sprintf('%s.%s', $alias, $field);
+        }
 
-        $queryBuilder->addCriteria(new Criteria($field, $this->getCriteriaType($criteriaType), sprintf($this->getOption('format'), $criteriaValue), $alias));
+        $queryBuilder->addCriteria(new Criteria(
+            new Comparison(
+                $field,
+                $this->getComparisonOperator($criteriaType),
+                sprintf($this->getOption('format'), $criteriaValue)
+            )
+        ));
     }
 
     /**
@@ -58,16 +66,17 @@ class StringFilter extends AbstractFilter
 
     /**
      * @param int $choiceType
-     * @return int
+     * @return string
      */
-    protected function getCriteriaType($choiceType)
+    protected function getComparisonOperator($choiceType)
     {
         $choices = [
-            ChoiceType::TYPE_CONTAINS => Criteria::TYPE_CONTAINS,
-            ChoiceType::TYPE_NOT_CONTAINS => Criteria::TYPE_NOT_CONTAINS,
-            ChoiceType::TYPE_EQUAL => Criteria::TYPE_EQUAL,
+            ChoiceType::TYPE_CONTAINS => Comparison::CONTAINS,
+            ChoiceType::TYPE_EQUAL => Comparison::EQ,
+            ChoiceType::TYPE_START_WITH => Comparison::STARTS_WITH,
+            ChoiceType::TYPE_END_WITH => Comparison::ENDS_WITH,
         ];
 
-        return isset($choices[$choiceType]) ? $choices[$choiceType] : Criteria::TYPE_CONTAINS;
+        return isset($choices[$choiceType]) ? $choices[$choiceType] : Comparison::CONTAINS;
     }
 }

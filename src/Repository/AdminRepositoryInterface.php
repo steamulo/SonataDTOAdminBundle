@@ -2,6 +2,8 @@
 
 namespace Vtech\Bundle\SonataDTOAdminBundle\Repository;
 
+use Doctrine\Common\Collections\Criteria;
+
 interface AdminRepositoryInterface
 {
     /**
@@ -29,13 +31,10 @@ interface AdminRepositoryInterface
     public function deleteByIds($ids);
 
     /**
-     * @param Criteria[] $criteria
-     * @param array $sorting
-     * @param int $offset
-     * @param int $limit
+     * @param Criteria $criteria
      * @return array
      */
-    public function findBy(array $criteria = [], $sorting = [], $offset = 0, $limit = -1);
+    public function findBy(Criteria $criteria);
 
     /**
      * @param mixed $id
@@ -44,8 +43,8 @@ interface AdminRepositoryInterface
     public function find($id);
 
     /**
-     * @param Criteria[] $criteria
+     * @param Criteria $criteria
      * @return int
      */
-    public function count(array $criteria = []);
+    public function count(Criteria $criteria);
 }

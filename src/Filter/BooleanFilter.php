@@ -2,13 +2,12 @@
 
 namespace Vtech\Bundle\SonataDTOAdminBundle\Filter;
 
-use Assert\AssertionFailedException;
+use Doctrine\Common\Collections\Criteria;
 use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
 use Sonata\CoreBundle\Form\Type\BooleanType;
 use Sonata\AdminBundle\Form\Type\Filter\DefaultType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Vtech\Bundle\SonataDTOAdminBundle\Datagrid\ProxyQuery;
-use Vtech\Bundle\SonataDTOAdminBundle\Repository\Criteria;
 
 class BooleanFilter extends AbstractFilter
 {
@@ -17,7 +16,6 @@ class BooleanFilter extends AbstractFilter
      * @param string $alias
      * @param string $field
      * @param array $value
-     * @throws AssertionFailedException
      */
     public function filter(ProxyQueryInterface $queryBuilder, $alias, $field, $value)
     {
@@ -31,7 +29,11 @@ class BooleanFilter extends AbstractFilter
 
         $criteriaValue = $value['value'] === BooleanType::TYPE_YES;
 
-        $queryBuilder->addCriteria(new Criteria($field, null, $criteriaValue, $alias));
+        if (!empty($alias)) {
+            $field = sprintf('%s.%s', $alias, $field);
+        }
+
+        $queryBuilder->addCriteria(new Criteria(Criteria::expr()->eq($field, $criteriaValue)));
     }
 
     /**
