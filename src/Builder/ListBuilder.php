@@ -9,28 +9,7 @@ use Sonata\AdminBundle\Builder\ListBuilderInterface;
 
 class ListBuilder implements ListBuilderInterface
 {
-    private $templates = [
-        'array' => 'SonataAdminBundle:CRUD:list_array.html.twig',
-        'boolean' => 'SonataAdminBundle:CRUD:list_boolean.html.twig',
-        'date' => 'SonataAdminBundle:CRUD:list_date.html.twig',
-        'time' => 'SonataAdminBundle:CRUD:list_time.html.twig',
-        'datetime' => 'SonataAdminBundle:CRUD:list_datetime.html.twig',
-        'text' => 'SonataAdminBundle:CRUD:list_string.html.twig',
-        'textarea' => 'SonataAdminBundle:CRUD:list_string.html.twig',
-        'email' => 'SonataAdminBundle:CRUD:list_email.html.twig',
-        'trans' => 'SonataAdminBundle:CRUD:list_trans.html.twig',
-        'string' => 'SonataAdminBundle:CRUD:list_string.html.twig',
-        'smallint' => 'SonataAdminBundle:CRUD:list_string.html.twig',
-        'bigint' => 'SonataAdminBundle:CRUD:list_string.html.twig',
-        'integer' => 'SonataAdminBundle:CRUD:list_string.html.twig',
-        'decimal' => 'SonataAdminBundle:CRUD:list_string.html.twig',
-        'identifier' => 'SonataAdminBundle:CRUD:list_string.html.twig',
-        'currency' => 'SonataAdminBundle:CRUD:list_currency.html.twig',
-        'percent' => 'SonataAdminBundle:CRUD:list_percent.html.twig',
-        'choice' => 'SonataAdminBundle:CRUD:list_choice.html.twig',
-        'url' => 'SonataAdminBundle:CRUD:list_url.html.twig',
-        'html' => 'SonataAdminBundle:CRUD:list_html.html.twig',
-    ];
+    private $templates = [];
 
     /**
      * {@inheritdoc}
@@ -160,5 +139,13 @@ class ListBuilder implements ListBuilderInterface
         }
 
         return $this->templates[$type];
+    }
+
+    /**
+     * @param array $templates
+     */
+    public function setTemplates($templates)
+    {
+        $this->templates = $templates;
     }
 }
