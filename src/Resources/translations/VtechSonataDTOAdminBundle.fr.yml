@@ -1,4 +1,5 @@
 label_type_contains: 'contient'
 label_type_equals: 'est égal à'
+label_type_not_equals: 'est différent de'
 label_type_start_with: 'commence par'
 label_type_end_with: 'se termine par'

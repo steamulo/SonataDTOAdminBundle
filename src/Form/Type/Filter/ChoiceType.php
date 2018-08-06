@@ -13,6 +13,7 @@ class ChoiceType extends AbstractType
     const TYPE_EQUAL = 2;
     const TYPE_START_WITH = 3;
     const TYPE_END_WITH = 4;
+    const TYPE_NOT_EQUAL = 5;
 
     public function getBlockPrefix()
     {
@@ -24,6 +25,7 @@ class ChoiceType extends AbstractType
         $choices = [
             'label_type_contains' => self::TYPE_CONTAINS,
             'label_type_equals' => self::TYPE_EQUAL,
+            'label_type_not_equals' => self::TYPE_NOT_EQUAL,
             'label_type_start_with' => self::TYPE_START_WITH,
             'label_type_end_with' => self::TYPE_END_WITH,
         ];

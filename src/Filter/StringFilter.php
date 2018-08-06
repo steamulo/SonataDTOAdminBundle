@@ -73,6 +73,7 @@ class StringFilter extends AbstractFilter
         $choices = [
             ChoiceType::TYPE_CONTAINS => Comparison::CONTAINS,
             ChoiceType::TYPE_EQUAL => Comparison::EQ,
+            ChoiceType::TYPE_NOT_EQUAL => Comparison::NEQ,
             ChoiceType::TYPE_START_WITH => Comparison::STARTS_WITH,
             ChoiceType::TYPE_END_WITH => Comparison::ENDS_WITH,
         ];

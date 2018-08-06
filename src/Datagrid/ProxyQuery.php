@@ -53,6 +53,14 @@ class ProxyQuery implements ProxyQueryInterface
     }
 
     /**
+     * @return bool
+     */
+    public function hasIdentifiers()
+    {
+        return !empty($this->identifiers);
+    }
+
+    /**
      * @return array
      */
     public function getIdentifiers()

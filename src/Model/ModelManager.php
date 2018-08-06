@@ -221,7 +221,13 @@ class ModelManager implements ModelManagerInterface
         }
 
         try {
-            $this->getClassRepository($class)->deleteByIds($queryProxy->getIdentifiers());
+            if ($queryProxy->hasIdentifiers()) {
+                $this->getClassRepository($class)->deleteByIds($queryProxy->getIdentifiers());
+
+                return;
+            }
+
+            $this->getClassRepository($class)->deleteBy($queryProxy->getCriteria());
         } catch (\Exception $e) {
             throw new ModelManagerException(
                 sprintf('Failed to delete object: %s', $class),

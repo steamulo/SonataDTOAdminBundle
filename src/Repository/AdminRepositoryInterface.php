@@ -32,6 +32,12 @@ interface AdminRepositoryInterface
 
     /**
      * @param Criteria $criteria
+     * @return void
+     */
+    public function deleteBy(Criteria $criteria);
+
+    /**
+     * @param Criteria $criteria
      * @return array
      */
     public function findBy(Criteria $criteria);
