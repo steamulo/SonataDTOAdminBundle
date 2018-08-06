@@ -14,6 +14,11 @@ class ChoiceType extends AbstractType
     const TYPE_START_WITH = 3;
     const TYPE_END_WITH = 4;
 
+    public function getBlockPrefix()
+    {
+        return 'sonata_dto_type_filter_choice';
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $choices = [
