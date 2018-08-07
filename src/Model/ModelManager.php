@@ -19,6 +19,7 @@ use Vtech\Bundle\SonataDTOAdminBundle\Admin\IdentifierNormalizerInterface;
 use Vtech\Bundle\SonataDTOAdminBundle\Datagrid\ProxyQuery;
 use Vtech\Bundle\SonataDTOAdminBundle\Datagrid\ProxyQuerySourceIterator;
 use Vtech\Bundle\SonataDTOAdminBundle\Repository\AdminRepositoryInterface;
+use Vtech\Bundle\SonataDTOAdminBundle\Repository\AdminRepositorySubscriberInterface;
 
 class ModelManager implements ModelManagerInterface
 {
@@ -57,7 +58,21 @@ class ModelManager implements ModelManagerInterface
      */
     public function addRepository($class, AdminRepositoryInterface $repository)
     {
+        if (isset($this->repositories[$class])) {
+            throw new \InvalidArgumentException(sprintf('The class "%s" already have a repository.', $class));
+        }
+
         $this->repositories[$class] = $repository;
+    }
+
+    /**
+     * @param AdminRepositorySubscriberInterface $repository
+     */
+    public function addRepositorySubscriber(AdminRepositorySubscriberInterface $repository)
+    {
+        foreach ($repository->getSupportedClass() as $class) {
+            $this->addRepository($class, $repository);
+        }
     }
 
     /**
