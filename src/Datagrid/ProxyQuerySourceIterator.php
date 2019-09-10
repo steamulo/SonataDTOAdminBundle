@@ -2,7 +2,7 @@
 
 namespace Vtech\Bundle\SonataDTOAdminBundle\Datagrid;
 
-use Exporter\Source\SourceIteratorInterface;
+use Sonata\Exporter\Source\SourceIteratorInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyPath;
 use Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException;

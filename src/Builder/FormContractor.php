@@ -5,6 +5,7 @@ namespace Vtech\Bundle\SonataDTOAdminBundle\Builder;
 use Sonata\AdminBundle\Admin\AdminInterface;
 use Sonata\AdminBundle\Admin\FieldDescriptionInterface;
 use Sonata\AdminBundle\Builder\FormContractorInterface;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Sonata\AdminBundle\Form\Type\ModelType;
@@ -62,7 +63,10 @@ class FormContractor implements FormContractorInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
+     * @param array $options
+     *
+     * @return FormBuilderInterface
      */
     public function getFormBuilder($name, array $options = [])
     {

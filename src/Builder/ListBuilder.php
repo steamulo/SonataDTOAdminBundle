@@ -130,7 +130,7 @@ class ListBuilder implements ListBuilderInterface
     /**
      * @param string $type
      *
-     * @return string
+     * @return string|null
      */
     private function getTemplate($type)
     {

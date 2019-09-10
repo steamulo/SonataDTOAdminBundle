@@ -70,7 +70,10 @@ class DatagridBuilder implements DatagridBuilderInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param DatagridInterface $datagrid
+     * @param string|null $type
+     * @param FieldDescriptionInterface $fieldDescription
+     * @param AdminInterface $admin
      */
     public function addFilter(DatagridInterface $datagrid, $type, FieldDescriptionInterface $fieldDescription, AdminInterface $admin)
     {
@@ -117,15 +120,15 @@ class DatagridBuilder implements DatagridBuilderInterface
         $formBuilder = $this->formFactory->createNamedBuilder('filter', FormType::class, [], $defaultOptions);
 
         $query = $admin->createQuery();
-        if ($admin instanceof AdminSecurityInterface) {
-            $admin->filterQueryForUser($this->getLoggedUser(), $query);
+        if ($admin instanceof AdminSecurityInterface && null !== $user = $this->getLoggedUser()) {
+            $admin->filterQueryForUser($user, $query);
         }
 
         return new Datagrid($query, $admin->getList(), $pager, $formBuilder, $values);
     }
 
     /**
-     * @return UserInterface
+     * @return UserInterface|null
      */
     private function getLoggedUser()
     {
@@ -134,10 +137,15 @@ class DatagridBuilder implements DatagridBuilderInterface
             return null;
         }
 
-        if (null !== $user = $token->getUser()) {
-            return $user;
+        $user = $token->getUser();
+        if (!\is_object($user)) {
+            return null;
         }
 
-        return null;
+        if (!$user instanceof UserInterface) {
+            return null;
+        }
+
+        return $user;
     }
 }

@@ -198,7 +198,10 @@ class ModelManager implements ModelManagerInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $class
+     * @param array $criteria
+     *
+     * @return object|null
      */
     public function findOneBy($class, array $criteria = [])
     {
@@ -315,7 +318,9 @@ class ModelManager implements ModelManagerInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param mixed $model
+     *
+     * @return string|null
      */
     public function getNormalizedIdentifier($model)
     {
