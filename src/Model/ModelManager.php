@@ -300,7 +300,7 @@ class ModelManager implements ModelManagerInterface
     public function getIdentifierFieldNames($class)
     {
         if (null !== $descriptor = $this->getClassIdentifierDescriptor($class)) {
-            $descriptor->getIdentifierFieldNames();
+            return $descriptor->getIdentifierFieldNames();
         }
 
         $reflection = new \ReflectionClass($class);
