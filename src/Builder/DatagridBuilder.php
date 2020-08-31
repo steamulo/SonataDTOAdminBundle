@@ -7,6 +7,7 @@ use Sonata\AdminBundle\Admin\FieldDescriptionInterface;
 use Sonata\AdminBundle\Builder\DatagridBuilderInterface;
 use Sonata\AdminBundle\Datagrid\Datagrid;
 use Sonata\AdminBundle\Datagrid\DatagridInterface;
+use Sonata\AdminBundle\Datagrid\SimplePager;
 use Sonata\AdminBundle\Filter\FilterFactoryInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -109,8 +110,7 @@ class DatagridBuilder implements DatagridBuilderInterface
      */
     public function getBaseDatagrid(AdminInterface $admin, array $values = [])
     {
-        $pager = new Pager();
-
+        $pager = $this->getPager($admin->getPagerType());
         $pager->setCountColumn($admin->getModelManager()->getIdentifierFieldNames($admin->getClass()));
 
         $defaultOptions = [
@@ -147,5 +147,17 @@ class DatagridBuilder implements DatagridBuilderInterface
         }
 
         return $user;
+    }
+
+    private function getPager($pagerType)
+    {
+        switch ($pagerType) {
+            case Pager::TYPE_DEFAULT:
+                return new Pager();
+            case Pager::TYPE_SIMPLE:
+                return new SimplePager();
+            default:
+                throw new \RuntimeException(sprintf('Unknown pager type "%s".', $pagerType));
+        }
     }
 }
