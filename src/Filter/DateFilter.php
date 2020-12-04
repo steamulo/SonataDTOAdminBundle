@@ -32,6 +32,8 @@ class DateFilter extends AbstractFilter
             throw new \RuntimeException('filter value must be instance of DateTime');
         }
 
+        $this->setTime($criteriaValue);
+
         $criteriaType = !isset($value['type']) || !is_numeric($value['type']) ? SonataDateType::TYPE_EQUAL : $value['type'];
         switch ($criteriaType) {
             case SonataDateType::TYPE_NULL:
@@ -91,5 +93,27 @@ class DateFilter extends AbstractFilter
         ];
 
         return isset($choices[$choiceType]) ? $choices[$choiceType] : Comparison::EQ;
+    }
+
+    protected function setTime(\DateTime $date)
+    {
+        if (null === $time = $this->getOption('time')) {
+            return;
+        }
+
+        if (!\is_array($time)
+            || !isset($time['hour'])
+            || !is_int($time['hour'])
+            || !isset($time['minute'])
+            || !is_int($time['minute'])
+            || !isset($time['second'])
+            || !is_int($time['second'])) {
+            throw new \RuntimeException(sprintf(
+                'Invalid option `time` for field: `%s`',
+                $this->getName()
+            ));
+        }
+
+        $date->setTime($time['hour'], $time['minute'], $time['second']);
     }
 }
