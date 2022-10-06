@@ -21,7 +21,7 @@
     }
   },
   "require": {
-    "php": "^8.0",
+    "php": "^7.4 || ^8.0 ",
     "sonata-project/admin-bundle": "^3.29",
     "symfony/framework-bundle": "^2.8 || ^3.2 || ^4.0",
     "symfony/doctrine-bridge": "^2.8 || ^3.2 || ^4.0",
