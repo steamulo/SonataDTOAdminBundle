@@ -4,7 +4,7 @@ namespace Vtech\Bundle\SonataDTOAdminBundle\Filter;
 
 use Doctrine\Common\Collections\Criteria;
 use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
-use Sonata\CoreBundle\Form\Type\BooleanType;
+use Sonata\Form\Type\BooleanType;
 use Sonata\AdminBundle\Form\Type\Filter\DefaultType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Vtech\Bundle\SonataDTOAdminBundle\Datagrid\ProxyQuery;
