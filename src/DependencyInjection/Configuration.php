@@ -12,8 +12,8 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('vtech_bundle_sonata_dto_admin', 'array');
+        $treeBuilder = new TreeBuilder("vtech_bundle_sonata_dto_admin");
+        $rootNode = $treeBuilder->getRootNode();
 
         $rootNode
             ->children()
