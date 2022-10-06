@@ -2,12 +2,12 @@
 
 namespace Vtech\Bundle\SonataDTOAdminBundle\Validator\Constraints;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
-use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\ORM\EntityRepository;
 
 /**
  * @author Aurélien Soulard <aurelien@vtech.fr>
@@ -15,15 +15,15 @@ use Doctrine\Common\Persistence\ObjectRepository;
 class DtoUniqueEntityValidator extends ConstraintValidator
 {
     /**
-     * @var ManagerRegistry
+     * @var Registry
      */
     private $registry;
 
     /**
      * DtoUniqueEntityValidator constructor.
-     * @param ManagerRegistry $registry
+     * @param Registry $registry
      */
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(Registry $registry)
     {
         $this->registry = $registry;
     }
@@ -177,11 +177,11 @@ class DtoUniqueEntityValidator extends ConstraintValidator
 
     /**
      * @param object $dto
-     * @param ObjectRepository $repository
+     * @param EntityRepository $repository
      * @param array $idProperties
      * @return object
      */
-    private function getEntityByIds($dto, ObjectRepository $repository, array $idProperties)
+    private function getEntityByIds($dto, EntityRepository $repository, array $idProperties)
     {
         $idProperties = $this->normalizeFields($idProperties);
         $ids = [];
