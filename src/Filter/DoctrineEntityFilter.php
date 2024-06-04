@@ -10,6 +10,7 @@ use Sonata\Form\Type\EqualType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
 use Vtech\Bundle\SonataDTOAdminBundle\Datagrid\ProxyQuery;
+use Sonata\AdminBundle\Form\Type\Filter\ChoiceType as SonataChoiceType;
 
 /**
  * @author Aurélien Soulard <aurelien@vtech.fr>
@@ -37,7 +38,16 @@ class DoctrineEntityFilter extends AbstractFilter
             $criteriaValue = $criteriaValue->toArray();
         }
 
-        $comparisonOperator = is_array($criteriaValue) ? Comparison::IN : Comparison::EQ;
+        $arrayComparison = Comparison::IN;
+        $objectComparison = Comparison::EQ;
+
+        /** Si le filtre avancé "Ne contient pas" est trigger, les comparaisons deviennent des négations */
+        if(isset($value['type']) && $value['type'] === SonataChoiceType::TYPE_NOT_CONTAINS) {
+            $arrayComparison = Comparison::NIN;
+            $objectComparison = Comparison::NEQ;
+        }
+
+        $comparisonOperator = is_array($criteriaValue) ? $arrayComparison : $objectComparison;
         if (!empty($alias)) {
             $field = sprintf('%s.%s', $alias, $field);
         }
