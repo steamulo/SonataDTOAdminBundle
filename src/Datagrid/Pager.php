@@ -20,19 +20,25 @@ class Pager extends BasePager
 
         $query = $this->getQuery();
 
-        if (0 == $this->getPage() || 0 == $this->getMaxPerPage()) {
+        if ($this->isExportMode()) {
+            // Pour l'exportation, récupérez tous les résultats
             $this->setLastPage(0);
-            $query->setFirstResult(0);
-            $query->setMaxResults(0);
+            $query->setFirstResult(null);
+            $query->setMaxResults(null); // Retirez la limite de résultats
         } else {
-            $offset = ($this->getPage() - 1) * $this->getMaxPerPage();
+            if (0 == $this->getPage() || 0 == $this->getMaxPerPage()) {
+                $this->setLastPage(0);
+                $query->setFirstResult(0);
+                $query->setMaxResults(0);
+            } else {
+                $offset = ($this->getPage() - 1) * $this->getMaxPerPage();
 
-            $query->setFirstResult($offset);
-            $query->setMaxResults($this->getMaxPerPage());
+                $query->setFirstResult($offset);
+                $query->setMaxResults($this->getMaxPerPage());
+                $this->initializeIterator();
 
-            $this->initializeIterator();
-
-            $this->setLastPage(ceil($this->getNbResults() / $this->getMaxPerPage()));
+                $this->setLastPage(ceil($this->getNbResults() / $this->getMaxPerPage()));
+            }
         }
     }
 
@@ -73,5 +79,14 @@ class Pager extends BasePager
     private function computeNbResults()
     {
         return $this->getQuery()->getNbResults();
+    }
+
+    /**
+     * Méthode pour vérifier si nous sommes en mode d'exportation
+     * @return bool
+     */
+    private function isExportMode()
+    {
+        return isset($_REQUEST['format']) && in_array($_REQUEST['format'], ["csv", "json", "xls", "xml"]);
     }
 }
