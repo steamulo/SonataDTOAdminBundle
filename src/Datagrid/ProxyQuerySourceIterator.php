@@ -111,7 +111,25 @@ class ProxyQuerySourceIterator implements SourceIteratorInterface
     protected function getValue($value)
     {
         if (is_array($value) || $value instanceof \Traversable) {
-            $value = null;
+            $items = [];
+            foreach ($value as $item) {
+                $itemLabel = '';
+
+                if(method_exists($item, 'getReference')) {
+                    $reference = $item->getReference();
+                    $itemLabel .= $reference;
+                }
+
+                if(method_exists($item, 'getName')) {
+                    $name = $item->getName();
+                    $itemLabel .= empty($itemLabel) ? "$name" : " - $name";
+                }
+                if(!empty($itemLabel)) {
+                    $items[] =  $itemLabel;
+                }
+            }
+            // Retourne les items sous forme de chaîne, séparés par des virgules
+            return implode(', ', $items);
         } elseif ($value instanceof \DateTimeInterface) {
             $value = $value->format($this->dateTimeFormat);
         } elseif (is_object($value)) {
